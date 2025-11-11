@@ -15,9 +15,11 @@
 
 📚 **[Complete Documentation Index](docs/README.md)** - Browse all available documentation
 
+⚡ **[Quick Reference Card](docs/QUICK_REFERENCE.md)** - One-page cheat sheet for rapid orientation
+
 ### Quick Links for Getting Started
 
-- **[Getting Started Guide](docs/GETTING_STARTED.md)** - New to EDC? Start here to learn how to run and use the connector
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - New to EDC? Start here to learn the framework and how to build connectors
 - **[Architecture Overview](docs/ARCHITECTURE.md)** - Understand the system design, components, and how they interact
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Developer onboarding, setup, and common development tasks
 - **[Debugging Guide](docs/DEBUGGING.md)** - Troubleshooting tips and debugging strategies
