@@ -2,44 +2,49 @@
 
 ## Welcome to EDC Connector Documentation
 
-This index provides a comprehensive guide to all available documentation for the Eclipse Dataspace Components (EDC) Connector.
+This index provides a comprehensive guide to all available documentation for the Eclipse Dataspace Components (EDC) Connector **framework**.
+
+**Important**: EDC Connector is a framework for building dataspace connectors, not a standalone application. This documentation covers:
+- The framework itself (for contributors and extension developers)
+- How to build connector implementations using the framework
+- Production implementations like [Tractus-X EDC Connector](https://github.com/eclipse-tractusx/tractusx-edc)
 
 ## Getting Started
 
 ### For New Users
 
-If you're new to EDC Connector, start here:
+If you're new to the EDC framework, start here:
 
-1. **[Getting Started Guide](GETTING_STARTED.md)** - Learn how to run and use the connector
-   - Quick start instructions
-   - Basic operations (assets, policies, contracts, transfers)
-   - Configuration basics
-   - Common use cases
+1. **[Getting Started Guide](GETTING_STARTED.md)** - Learn about the framework and how to build connectors
+   - Framework vs. implementation distinction
+   - Using sample implementations
+   - Building custom connectors
+   - Basic operations and configuration
 
-2. **[Architecture Overview](ARCHITECTURE.md)** - Understand what EDC Connector is and how it works
+2. **[Architecture Overview](ARCHITECTURE.md)** - Understand what EDC framework provides
    - High-level architecture
-   - Major components (Control Plane, Data Plane, etc.)
+   - Framework components (Control Plane, Data Plane, etc.)
    - Design principles
    - Deployment patterns
 
 ### For Developers
 
-If you want to contribute or extend the connector:
+If you want to contribute to the framework or build extensions:
 
 1. **[Developer Guide](DEVELOPER_GUIDE.md)** - Complete development setup and workflow
    - Prerequisites and setup
-   - Project structure walkthrough
+   - Framework structure walkthrough
    - Building and testing
    - Creating extensions
    - Code style and conventions
 
 2. **[Debugging Guide](DEBUGGING.md)** - Troubleshooting and debugging strategies
-   - Debugging in different IDEs
+   - Debugging the framework
+   - Debugging connector implementations
    - Common issues and solutions
    - Logging and diagnostics
-   - Performance debugging
 
-3. **[Component Relationships](COMPONENT_RELATIONSHIPS.md)** - Deep dive into component interactions
+3. **[Component Relationships](COMPONENT_RELATIONSHIPS.md)** - Deep dive into framework architecture
    - Component hierarchy and dependencies
    - Data flow through the system
    - Communication patterns

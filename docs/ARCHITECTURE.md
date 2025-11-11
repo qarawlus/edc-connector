@@ -2,7 +2,13 @@
 
 ## Overview
 
-The Eclipse Dataspace Components (EDC) Connector is a framework for building sovereign, interoperable dataspaces using the Dataspace Protocol (DSP) and Decentralized Claims Protocol (DCP). This document provides a comprehensive overview of the connector's architecture, components, and design principles.
+The Eclipse Dataspace Components (EDC) Connector is a **framework** for building sovereign, interoperable dataspaces using the Dataspace Protocol (DSP) and Decentralized Claims Protocol (DCP). 
+
+**Important**: This is a framework, not a standalone application. Organizations use this framework to build custom connector implementations tailored to their specific needs. Production-ready implementations include:
+- [Tractus-X EDC Connector](https://github.com/eclipse-tractusx/tractusx-edc) - For the Catena-X/Tractus-X ecosystem
+- Various organization-specific implementations
+
+This document provides a comprehensive overview of the framework's architecture, components, and design principles.
 
 ## High-Level Architecture
 
@@ -142,30 +148,36 @@ The connector supports the Decentralized Claims Protocol for decentralized ident
 
 ### Runtime Initialization
 
-The connector uses a dependency injection framework to:
+Connector implementations built with this framework use a dependency injection system to:
 1. Load extensions from the classpath
 2. Resolve dependencies between services
 3. Initialize services in correct order
 4. Start the runtime
 
-Key modules:
+Key framework modules:
 - `boot`: Bootstrap mechanisms
 - `runtime-core`: Core runtime functionality
 
+The framework provides `BaseRuntime` as a starting point, which implementations can use directly or extend.
+
 ### Configuration
 
-Configuration is managed through:
+The framework supports configuration through:
 - Environment variables
-- Configuration files
+- Configuration files (via `edc.fs.config` system property)
 - Extension-specific configuration
 
+Configuration keys follow a hierarchical naming pattern (e.g., `edc.participant.id`, `web.http.port`).
+
 ## Deployment Patterns
+
+The framework supports various deployment topologies. Actual deployment depends on how the connector implementation is built.
 
 ### Single Instance
 
 ```
 ┌─────────────────────────┐
-│   EDC Connector         │
+│   Connector Instance    │
 │  ┌─────────────────┐    │
 │  │  Control Plane  │    │
 │  └─────────────────┘    │
@@ -175,7 +187,7 @@ Configuration is managed through:
 └─────────────────────────┘
 ```
 
-All components run in a single process.
+All components run in a single process. Suitable for development and small-scale deployments.
 
 ### Distributed Type 2
 
@@ -225,9 +237,11 @@ For detailed deployment patterns, see [Management Domains](developer/management-
 - Integration with vault systems (HashiCorp Vault, cloud providers)
 - Key rotation support
 
-## Extension Development
+### Extension Development
 
 ### Creating a Custom Extension
+
+Extensions are the primary way to add functionality to connectors built with this framework.
 
 1. **Define SPI Interface** (if needed)
 2. **Implement the Interface**
@@ -251,7 +265,13 @@ public class MyCustomExtension implements ServiceExtension {
 }
 ```
 
+When building a connector implementation, include your extension module in the build dependencies.
+
 ## Testing Strategy
+
+### Framework Testing
+
+The framework itself includes:
 
 ### Unit Testing
 - Test individual components in isolation
@@ -263,9 +283,17 @@ public class MyCustomExtension implements ServiceExtension {
 
 ### System Testing
 - End-to-end testing of complete flows
-- Multi-connector scenarios
+- Multi-connector scenarios (see [Samples](https://github.com/eclipse-edc/Samples))
 
 Test utilities location: `core/common/junit/`
+
+### Testing Your Implementation
+
+When building a connector with this framework:
+- Use the provided test utilities
+- Follow the testing patterns from samples
+- Test your custom extensions independently
+- Perform end-to-end testing of your complete implementation
 
 ## Observability
 

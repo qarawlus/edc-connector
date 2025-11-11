@@ -2,7 +2,14 @@
 
 ## Welcome
 
-This guide will help you get started with developing the EDC Connector. Whether you're contributing to the core project or building custom extensions, this document provides the essential information you need.
+This guide will help you get started with developing the EDC Connector **framework**. Whether you're contributing to the framework itself or building custom extensions and implementations, this document provides the essential information you need.
+
+**Important**: The EDC Connector is a framework, not a standalone application. This guide covers:
+- Contributing to the framework itself
+- Building custom extensions
+- Creating connector implementations using the framework
+
+For building a complete, runnable connector, see the [Getting Started Guide](GETTING_STARTED.md).
 
 ## Table of Contents
 
@@ -90,7 +97,7 @@ This will:
 
 ## Project Structure
 
-The EDC Connector is organized into several top-level directories:
+The EDC Connector framework is organized into several top-level directories:
 
 ```
 edc-connector/
@@ -149,10 +156,13 @@ Contains implementations of dataspace communication protocols.
 
 **Example**: `data-protocols/dsp/` implements the Dataspace Protocol.
 
-#### `launchers/` - Runnable Configurations
-Provides ready-to-run connector configurations. Each launcher defines which modules to include.
+#### `launchers/` - Reference Launcher Configurations
+Provides minimal reference configurations showing how to build runnable connectors.
 
-**Example**: `launchers/generic/` provides a basic connector configuration.
+**Note**: These are reference examples, not production-ready connectors. For production use:
+- Build your own connector implementation
+- Use existing implementations like [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc)
+- Study [EDC Samples](https://github.com/eclipse-edc/Samples) for complete working examples
 
 ## Development Workflow
 
@@ -222,11 +232,18 @@ Provides ready-to-run connector configurations. Each launcher defines which modu
 
 ### Generate Distribution
 
+Build a reference launcher:
+
 ```bash
 ./gradlew :launchers:generic:build
 ```
 
 The distribution will be in `launchers/generic/build/distributions/`.
+
+**Note**: The generic launcher is a minimal reference. For production connectors:
+- Build your own implementation with required extensions
+- Follow patterns from [EDC Samples](https://github.com/eclipse-edc/Samples)
+- Use production implementations like [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc)
 
 ## Running Tests
 
@@ -483,7 +500,9 @@ Example: `feat: add support for custom authentication provider`
 
 ### Running a Launcher Locally
 
-1. **Build the launcher**:
+For testing and development, you can run a reference launcher or sample:
+
+1. **Build a reference launcher**:
    ```bash
    ./gradlew :launchers:generic:build
    ```
@@ -495,10 +514,19 @@ Example: `feat: add support for custom authentication provider`
    cd generic
    ```
 
-3. **Run the connector**:
+3. **Run**:
    ```bash
    java -jar lib/generic.jar
    ```
+
+**Better Approach for Learning**: Use the [EDC Samples](https://github.com/eclipse-edc/Samples) repository which provides complete, documented examples:
+
+```bash
+git clone https://github.com/eclipse-edc/Samples.git
+cd Samples/basic/basic-01-basic-connector
+./gradlew build
+java -jar build/libs/basic-connector.jar
+```
 
 ### Viewing Available Tasks
 
@@ -521,9 +549,10 @@ Example: `feat: add support for custom authentication provider`
 
 ## Next Steps
 
-- Review the [Architecture Documentation](ARCHITECTURE.md)
+- Review the [Architecture Documentation](ARCHITECTURE.md) to understand the framework design
 - Explore [Decision Records](developer/decision-records/) for design rationale
-- Check out [example implementations](https://github.com/eclipse-edc/Samples)
+- Study [EDC Samples](https://github.com/eclipse-edc/Samples) for complete working examples
+- Examine [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc) as a production implementation reference
 - Read the [Contributing Guidelines](https://github.com/eclipse-edc/eclipse-edc.github.io/blob/main/CONTRIBUTING.md)
 
 Happy coding! 🚀

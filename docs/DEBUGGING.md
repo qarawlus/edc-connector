@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides practical debugging strategies and tips for troubleshooting issues in the EDC Connector.
+This guide provides practical debugging strategies and tips for troubleshooting issues when working with the EDC Connector framework - whether you're developing the framework itself, building extensions, or debugging a connector implementation.
 
 ## Table of Contents
 
@@ -69,7 +69,7 @@ Before debugging, understand the expected flow:
 
 ### 4. Check State Machines
 
-The connector uses state machines extensively. Common states:
+The framework uses state machines extensively. Common states:
 
 **Transfer Process States:**
 - `INITIAL` → `PROVISIONING` → `PROVISIONED` → `REQUESTED` → 
@@ -90,17 +90,17 @@ The connector uses state machines extensively. Common states:
 3. Set breakpoints as needed
 4. Use "Step Over" (F8), "Step Into" (F7), "Step Out" (Shift+F8)
 
-#### Debug a Running Connector
+#### Debug a Running Connector Implementation
 
 1. **Create Remote Debug Configuration**:
    - Run → Edit Configurations → Add New → Remote JVM Debug
    - Host: `localhost`
    - Port: `5005` (or your debug port)
 
-2. **Start Connector with Debug Enabled**:
+2. **Start your connector with debug enabled**:
    ```bash
    java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
-        -jar launcher.jar
+        -jar your-connector.jar
    ```
 
 3. **Attach Debugger**:
@@ -146,9 +146,9 @@ Create `.vscode/launch.json`:
 #### Using JDB (Java Debugger)
 
 ```bash
-# Start with debug enabled
+# Start your connector with debug enabled
 java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005 \
-     -jar connector.jar
+     -jar your-connector.jar
 
 # In another terminal, attach JDB
 jdb -attach 5005
@@ -204,9 +204,13 @@ jdb -attach 5005
 **Debug Steps:**
 
 1. **Check Transfer Process State**:
+   
+   Using your connector implementation's Management API:
    ```bash
    curl http://localhost:8181/management/v3/transferprocesses/{id}
    ```
+   
+   **Note**: Actual endpoint URL depends on your connector implementation's configuration.
 
 2. **Enable State Machine Logging**:
    ```properties
@@ -270,9 +274,13 @@ jdb -attach 5005
    ```
 
 2. **Verify Data Plane Registration**:
+   
+   Using your connector implementation's Management API:
    ```bash
    curl http://localhost:8181/management/v3/dataplanes
    ```
+   
+   **Note**: Endpoint availability depends on your connector configuration.
 
 3. **Check Data Source/Sink Configuration**:
    - Set breakpoint in source/sink implementations
@@ -345,7 +353,7 @@ try {
 
 ### Health Checks
 
-Implement health check endpoints:
+Check connector health (if health check extensions are included):
 
 ```bash
 # Check connector health
@@ -357,6 +365,8 @@ curl http://localhost:8181/api/check/liveness
 # Check readiness
 curl http://localhost:8181/api/check/readiness
 ```
+
+**Note**: Health check endpoints depend on your connector implementation and configuration.
 
 ### Metrics
 

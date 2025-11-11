@@ -2,11 +2,13 @@
 
 ## Overview
 
-This guide will help you get started with the Eclipse Dataspace Components (EDC) Connector. You'll learn how to run a basic connector instance, understand its capabilities, and perform common operations.
+This guide will help you get started with the Eclipse Dataspace Components (EDC) Connector framework. You'll learn how the framework is structured, how to build connector implementations, and understand its capabilities.
 
 ## What is EDC Connector?
 
-The EDC Connector is a framework for building sovereign, interoperable dataspaces. It enables organizations to:
+**EDC Connector is a framework**, not a standalone application. It provides the building blocks for creating sovereign, interoperable dataspace connectors. 
+
+Organizations use this framework to build custom connector implementations that:
 
 - **Share data securely** with fine-grained access control
 - **Negotiate contracts** automatically based on policies
@@ -14,66 +16,73 @@ The EDC Connector is a framework for building sovereign, interoperable dataspace
 - **Maintain sovereignty** over their data assets
 - **Participate in dataspaces** using standard protocols (DSP, DCP)
 
+### Framework vs. Implementation
+
+- **This repository (eclipse-edc/Connector)**: The **framework** - provides core components, SPIs, and extensions
+- **Production implementations**: Organizations build their own connectors using this framework
+  - Example: [Tractus-X EDC Connector](https://github.com/eclipse-tractusx/tractusx-edc) - A complete implementation for the Catena-X/Tractus-X ecosystem
+
 ## Quick Start
 
 ### Prerequisites
 
 - Java 17 or higher ([Download](https://adoptium.net/))
+- Gradle (included via wrapper)
 - Basic understanding of REST APIs
-- (Optional) Docker for containerized deployment
 
-### Option 1: Using Pre-built Distribution
+### Option 1: Explore the Framework
 
-1. **Download the latest release**:
-   ```bash
-   # Replace VERSION with the latest version
-   wget https://github.com/eclipse-edc/Connector/releases/download/vVERSION/connector-VERSION.zip
-   unzip connector-VERSION.zip
-   cd connector-VERSION
-   ```
-
-2. **Start the connector**:
-   ```bash
-   java -jar lib/connector.jar
-   ```
-
-3. **Verify it's running**:
-   ```bash
-   curl http://localhost:8181/api/check/health
-   ```
-
-### Option 2: Building from Source
-
-1. **Clone the repository**:
+1. **Clone the framework repository**:
    ```bash
    git clone https://github.com/eclipse-edc/Connector.git
    cd Connector
    ```
 
-2. **Build the connector**:
+2. **Build the framework**:
    ```bash
-   ./gradlew :launchers:generic:build
+   ./gradlew build
    ```
 
-3. **Run the connector**:
+3. **Explore the structure**:
    ```bash
-   cd launchers/generic/build/distributions
-   unzip generic.zip
-   cd generic
-   java -jar lib/generic.jar
+   # View the SPI (extension points)
+   ls -la spi/
+   
+   # View core implementations
+   ls -la core/
+   
+   # View available extensions
+   ls -la extensions/
    ```
 
-### Option 3: Using Docker
+### Option 2: Use a Production Implementation
+
+For a ready-to-run connector, use an existing implementation:
+
+**Tractus-X EDC Connector** (recommended for getting started):
 
 ```bash
-# Pull the image
-docker pull edc/connector:latest
+# Clone the Tractus-X EDC implementation
+git clone https://github.com/eclipse-tractusx/tractusx-edc.git
+cd tractusx-edc
 
-# Run the connector
-docker run -p 8181:8181 -p 8282:8282 edc/connector:latest
+# Follow their quickstart guide
+# See: https://github.com/eclipse-tractusx/tractusx-edc
 ```
 
-## Understanding the Connector
+### Option 3: Build Your Own Connector
+
+Create a custom connector implementation using this framework:
+
+1. **Create a new Gradle project**
+2. **Add EDC dependencies** (see [Building Custom Connectors](#building-custom-connectors))
+3. **Select extensions** you need
+4. **Create a runtime launcher**
+5. **Configure and run**
+
+See the [Developer Guide](DEVELOPER_GUIDE.md#creating-extensions) for detailed instructions.
+
+## Understanding the Framework
 
 ### Key Concepts
 
@@ -92,20 +101,153 @@ Negotiated agreements between data providers and consumers
 #### Transfer Processes
 Workflows that orchestrate actual data transfers
 
-### Connector Endpoints
+### Framework Components
 
-A running connector typically exposes several API endpoints:
+The EDC framework exposes several key components:
 
-- **Management API** (port 8181): For managing assets, policies, contracts, and transfers
-- **DSP API** (port 8282): For dataspace protocol communication with other connectors
-- **Control API** (port 8183): For control plane operations
-- **Public API** (varies): For accessing transferred data
+- **Management API**: For managing assets, policies, contracts, and transfers
+- **DSP API**: For dataspace protocol communication between connectors  
+- **Control API**: For control plane operations
+- **Public API**: For accessing transferred data
+
+The actual ports and endpoints are configured in your connector implementation.
+
+## Building Custom Connectors
+
+### Basic Connector Structure
+
+A minimal connector implementation needs:
+
+1. **Gradle build configuration** with EDC framework dependencies
+2. **Extension selection** - choose which modules to include
+3. **Runtime class** - bootstraps the connector
+4. **Configuration** - environment-specific settings
+
+### Example Build Configuration
+
+Create a `build.gradle.kts`:
+
+```kotlin
+plugins {
+    `java-library`
+    id("application")
+}
+
+dependencies {
+    // Core dependencies
+    implementation("org.eclipse.edc:boot:VERSION")
+    implementation("org.eclipse.edc:connector-core:VERSION")
+    
+    // Control Plane
+    implementation("org.eclipse.edc:control-plane-core:VERSION")
+    implementation("org.eclipse.edc:management-api:VERSION")
+    
+    // Data Plane
+    implementation("org.eclipse.edc:data-plane-core:VERSION")
+    implementation("org.eclipse.edc:data-plane-http:VERSION")
+    
+    // Protocol
+    implementation("org.eclipse.edc:dsp:VERSION")
+    
+    // Storage (choose one)
+    implementation("org.eclipse.edc:asset-index-sql:VERSION")
+    // or use in-memory for testing
+}
+
+application {
+    mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
+}
+```
+
+### Creating a Runtime
+
+The simplest runtime uses the provided `BaseRuntime`:
+
+```java
+package com.example.connector;
+
+import org.eclipse.edc.boot.system.runtime.BaseRuntime;
+
+public class MyConnectorRuntime {
+    public static void main(String[] args) {
+        BaseRuntime.main(args);
+    }
+}
+```
+
+For more control, extend `BaseRuntime` or implement your own runtime initialization.
+
+### Selecting Extensions
+
+Extensions provide specific capabilities. Common extensions include:
+
+**Storage:**
+- `asset-index-sql` - SQL-based asset storage
+- `contract-negotiation-store-sql` - SQL contract storage
+- `transfer-process-store-sql` - SQL transfer storage
+
+**Security:**
+- `vault-hashicorp` - HashiCorp Vault integration
+- `vault-azure` - Azure Key Vault integration
+- `oauth2-core` - OAuth2 authentication
+
+**Data Transfer:**
+- `data-plane-http` - HTTP data transfer
+- `data-plane-kafka` - Kafka data transfer  
+- `data-plane-azure` - Azure Storage integration
+- `data-plane-aws` - AWS S3 integration
+
+**APIs:**
+- `management-api` - REST management API
+- `observability-api` - Health and metrics endpoints
+
+See the [extensions/](../extensions/) directory for all available extensions.
+
+## Working with Sample Implementations
+
+The [EDC Samples repository](https://github.com/eclipse-edc/Samples) provides complete working examples:
+
+```bash
+git clone https://github.com/eclipse-edc/Samples.git
+cd Samples
+
+# Explore basic samples
+cd basic/basic-01-basic-connector
+./gradlew build
+
+# Run the sample connector
+java -jar build/libs/basic-connector.jar
+```
+
+## Using Production Implementations
+
+### Tractus-X EDC Connector
+
+A complete, production-ready implementation:
+
+```bash
+git clone https://github.com/eclipse-tractusx/tractusx-edc.git
+cd tractusx-edc
+
+# Follow the Tractus-X specific documentation
+# for building and running
+```
+
+Features:
+- Pre-configured for Catena-X/Tractus-X ecosystem
+- Production-grade security
+- Complete data plane implementations
+- Comprehensive documentation
+
+Visit: [Tractus-X EDC Documentation](https://github.com/eclipse-tractusx/tractusx-edc)
 
 ## Basic Operations
 
+Once you have a running connector (either from your implementation or from samples), you can interact with it via REST APIs.
+
 ### 1. Create an Asset
 
-An asset represents data you want to share.
+An asset represents data you want to share. Example using a connector's Management API:
 
 ```bash
 curl -X POST http://localhost:8181/management/v3/assets \
@@ -127,6 +269,8 @@ curl -X POST http://localhost:8181/management/v3/assets \
     }
   }'
 ```
+
+**Note:** The actual endpoint URL and authentication depend on your connector implementation.
 
 ### 2. Create a Policy
 
@@ -241,9 +385,11 @@ curl -X POST http://localhost:8181/management/v3/transferprocesses \
 
 ## Configuration
 
-### Basic Configuration
+Connector implementations typically support configuration through properties files or environment variables. The exact configuration options depend on which extensions are included.
 
-Create a `configuration.properties` file:
+### Common Configuration Patterns
+
+Most connectors built with EDC framework support:
 
 ```properties
 # Connector identity
@@ -254,7 +400,7 @@ web.http.port=8181
 web.http.path=/api
 edc.api.auth.key=your-api-key
 
-# DSP endpoint
+# DSP endpoint  
 web.http.protocol.port=8282
 web.http.protocol.path=/api/v1/dsp
 
@@ -262,14 +408,11 @@ web.http.protocol.path=/api/v1/dsp
 edc.dataplane.token.validation.endpoint=http://localhost:8183/control/token
 ```
 
-Start with configuration:
-```bash
-java -Dedc.fs.config=configuration.properties -jar connector.jar
-```
+**Note:** Actual configuration keys may vary by implementation. Consult your connector implementation's documentation.
 
 ### Environment Variables
 
-Alternatively, use environment variables:
+Configuration can also use environment variables:
 
 ```bash
 export EDC_PARTICIPANT_ID=my-connector
@@ -278,48 +421,39 @@ export WEB_HTTP_PATH=/api
 export EDC_API_AUTH_KEY=your-api-key
 export WEB_HTTP_PROTOCOL_PORT=8282
 export WEB_HTTP_PROTOCOL_PATH=/api/v1/dsp
-
-java -jar connector.jar
 ```
 
-### Common Configuration Options
+## Testing with Multiple Connectors
 
-| Property | Description | Default |
-|----------|-------------|---------|
-| `edc.participant.id` | Unique identifier for the connector | Required |
-| `web.http.port` | Management API port | 8181 |
-| `web.http.protocol.port` | DSP protocol port | 8282 |
-| `edc.api.auth.key` | API authentication key | none |
-| `edc.dataplane.selector.url` | Data plane selector URL | none |
-| `edc.vault.hashicorp.url` | HashiCorp Vault URL | none |
+To test dataspace interactions, you need at least two connector instances: a provider and a consumer.
 
-## Two-Connector Scenario
+### Provider Setup (Example)
 
-To test the connector, you typically need at least two instances: a provider and a consumer.
+Using a sample or implementation:
 
-### Provider Setup
+```bash
+export EDC_PARTICIPANT_ID=provider
+export WEB_HTTP_PORT=8181
+export WEB_HTTP_PROTOCOL_PORT=8282
+# Start your connector implementation
+```
 
-1. **Start provider connector**:
-   ```bash
-   export EDC_PARTICIPANT_ID=provider
-   export WEB_HTTP_PORT=8181
-   export WEB_HTTP_PROTOCOL_PORT=8282
-   java -jar connector.jar
-   ```
+Then create assets, policies, and contract definitions (see Basic Operations above).
 
-2. **Create an asset, policy, and contract definition** (see Basic Operations above)
+### Consumer Setup (Example)
 
-### Consumer Setup
+Using a separate instance:
 
-1. **Start consumer connector** (different ports):
-   ```bash
-   export EDC_PARTICIPANT_ID=consumer
-   export WEB_HTTP_PORT=9181
-   export WEB_HTTP_PROTOCOL_PORT=9282
-   java -jar connector.jar
-   ```
+```bash
+export EDC_PARTICIPANT_ID=consumer  
+export WEB_HTTP_PORT=9181
+export WEB_HTTP_PROTOCOL_PORT=9282
+# Start your connector implementation
+```
 
-2. **Query catalog, negotiate contract, initiate transfer** (see Basic Operations above)
+Then query catalog, negotiate contract, initiate transfer (see Basic Operations above).
+
+**Important:** The exact startup commands depend on your connector implementation (sample, Tractus-X, or custom).
 
 ## Common Use Cases
 
@@ -374,7 +508,7 @@ Share specific database queries:
 
 ### API Authentication
 
-Always protect your Management API:
+Always protect Management APIs in production:
 
 ```properties
 edc.api.auth.key=<strong-random-key>
@@ -387,20 +521,20 @@ curl -H "X-Api-Key: <strong-random-key>" ...
 
 ### Secrets Management
 
-Never hardcode credentials. Use a vault:
+Never hardcode credentials. Use vault extensions:
 
 ```properties
 # HashiCorp Vault
 edc.vault.hashicorp.url=http://vault:8200
 edc.vault.hashicorp.token=s.xxxxxx
 
-# Azure Key Vault
+# Azure Key Vault  
 edc.vault.azure.name=my-keyvault
 ```
 
 ### Identity and Trust
 
-Configure participant identity:
+Configure participant identity (implementation-specific):
 
 ```properties
 # DID-based identity
@@ -416,6 +550,8 @@ edc.oauth.client.id=my-client-id
 
 ### Health Checks
 
+Most implementations expose health endpoints:
+
 ```bash
 # Overall health
 curl http://localhost:8181/api/check/health
@@ -423,70 +559,75 @@ curl http://localhost:8181/api/check/health
 # Liveness probe
 curl http://localhost:8181/api/check/liveness
 
-# Readiness probe
+# Readiness probe  
 curl http://localhost:8181/api/check/readiness
 ```
 
+**Note:** Actual endpoint paths depend on your implementation's configuration.
+
 ### Logging
 
-Enable detailed logging:
+Enable detailed logging (implementation-specific):
 
 ```properties
 edc.logging.level=DEBUG
 ```
 
-View logs:
-```bash
-# If running in foreground, logs appear in console
-# If using systemd:
-journalctl -u edc-connector -f
-```
-
 ### Common Issues
 
+**Issue: Framework classes not found**
+- Ensure all required dependencies are included in your build
+- Check classpath and verify framework version compatibility
+
+**Issue: Extensions not loading**
+- Verify extension is on classpath
+- Check META-INF/services configuration
+- Review logs for dependency injection errors
+
 **Issue: "Connection refused"**
-- Check connector is running: `ps aux | grep java`
-- Verify ports are open: `netstat -an | grep 8181`
-
-**Issue: "Authentication failed"**
-- Verify API key: `echo $EDC_API_AUTH_KEY`
-- Check X-Api-Key header in requests
-
-**Issue: "Transfer not starting"**
-- Check contract agreement exists
-- Verify data plane is configured
-- Review connector logs for errors
+- Verify connector is running and configured ports are correct
+- Check firewall and network settings
 
 For more troubleshooting help, see [DEBUGGING.md](DEBUGGING.md).
 
 ## Next Steps
 
-### Learn More
+### For Framework Users
 
-- **Architecture**: Understand the [system architecture](ARCHITECTURE.md)
+- **Build Extensions**: Learn to [create custom extensions](DEVELOPER_GUIDE.md#creating-extensions)
+- **Understand Architecture**: Read the [Architecture Guide](ARCHITECTURE.md)
+- **Explore Samples**: Try the [EDC Samples](https://github.com/eclipse-edc/Samples)
+- **Study Implementations**: Review [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc)
+
+### For Connector Operators
+
+- **Production Deployment**: Use a production-ready implementation like Tractus-X EDC
+- **Advanced Configuration**: Consult your implementation's specific documentation
+- **Integration**: Connect with your existing systems and data sources
+- **Policy Development**: Create sophisticated access policies for your use cases
+
+### Learning Resources
+
+- **Architecture**: Understand the [framework architecture](ARCHITECTURE.md)
 - **Development**: Read the [Developer Guide](DEVELOPER_GUIDE.md)
-- **Examples**: Explore [sample implementations](https://github.com/eclipse-edc/Samples)
+- **Components**: Learn about [component relationships](COMPONENT_RELATIONSHIPS.md)
 - **Specifications**: Review the [Dataspace Protocol](https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol)
-
-### Advanced Topics
-
-- **Distributed Deployment**: Deploy separate control and data planes
-- **Custom Extensions**: Build connectors with custom functionality
-- **Policy Development**: Create complex access policies
-- **Integration**: Integrate with your existing systems
 
 ### Community
 
 - **Discord**: [Join the community](https://discord.gg/n4sD9qtjMQ)
-- **GitHub**: [Contribute to the project](https://github.com/eclipse-edc/Connector)
+- **GitHub**: [Contribute to the framework](https://github.com/eclipse-edc/Connector)
 - **Documentation**: [Full documentation](https://eclipse-edc.github.io)
 
 ## Resources
 
-- [EDC Website](https://eclipse-edc.github.io)
+- [EDC Framework Website](https://eclipse-edc.github.io)
 - [GitHub Repository](https://github.com/eclipse-edc/Connector)
 - [Sample Projects](https://github.com/eclipse-edc/Samples)
+- [Tractus-X EDC Implementation](https://github.com/eclipse-tractusx/tractusx-edc)
 - [Decision Records](developer/decision-records/)
 - [Contributing Guidelines](https://github.com/eclipse-edc/eclipse-edc.github.io/blob/main/CONTRIBUTING.md)
 
-Happy data sharing! 🚀
+---
+
+**Remember**: This is a **framework** for building connectors, not a standalone application. For production use, either build your own connector implementation or use an existing one like Tractus-X EDC Connector.
