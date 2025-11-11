@@ -13,9 +13,22 @@
 
 ## Documentation
 
-Base documentation can be found on the [documentation website](https://eclipse-edc.github.io). \
-Developer documentation can be found under [docs/developer](docs/developer), \
-where the main concepts and decisions are captured as [decision records](docs/developer/decision-records/README.md).
+📚 **[Complete Documentation Index](docs/README.md)** - Browse all available documentation
+
+### Quick Links for Getting Started
+
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - New to EDC? Start here to learn how to run and use the connector
+- **[Architecture Overview](docs/ARCHITECTURE.md)** - Understand the system design, components, and how they interact
+- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Developer onboarding, setup, and common development tasks
+- **[Debugging Guide](docs/DEBUGGING.md)** - Troubleshooting tips and debugging strategies
+- **[Component Relationships](docs/COMPONENT_RELATIONSHIPS.md)** - Deep dive into component interactions
+
+### Additional Resources
+
+- Base documentation can be found on the [documentation website](https://eclipse-edc.github.io)
+- Developer documentation can be found under [docs/developer](docs/developer)
+- Architectural decisions are captured as [decision records](docs/developer/decision-records/README.md)
+- Deployment patterns are documented in [management domains](docs/developer/management-domains/management-domains.md)
 
 ## Directory structure
 
