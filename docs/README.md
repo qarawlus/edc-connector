@@ -15,13 +15,19 @@ This index provides a comprehensive guide to all available documentation for the
 
 If you're new to the EDC framework, start here:
 
-1. **[Getting Started Guide](GETTING_STARTED.md)** - Learn about the framework and how to build connectors
+1. **[Quick Reference](QUICK_REFERENCE.md)** ⚡ - **START HERE** for a rapid overview
+   - What is EDC framework
+   - Key concepts at a glance
+   - Common commands
+   - Quick examples
+
+2. **[Getting Started Guide](GETTING_STARTED.md)** - Learn about the framework and how to build connectors
    - Framework vs. implementation distinction
    - Using sample implementations
    - Building custom connectors
    - Basic operations and configuration
 
-2. **[Architecture Overview](ARCHITECTURE.md)** - Understand what EDC framework provides
+3. **[Architecture Overview](ARCHITECTURE.md)** - Understand what EDC framework provides
    - High-level architecture
    - Framework components (Control Plane, Data Plane, etc.)
    - Design principles
@@ -265,6 +271,17 @@ This documentation is maintained by the EDC community. To suggest improvements:
 - Update this index when adding new documentation
 
 ## Quick Reference
+
+### Cheat Sheet
+
+- **[Quick Reference Card](QUICK_REFERENCE.md)** ⚡ - One-page reference with:
+  - Framework structure overview
+  - Key concepts table
+  - Common commands
+  - Extension creation template
+  - Configuration examples
+  - API examples
+  - Debugging quick tips
 
 ### Common Commands
 
